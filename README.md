@@ -52,5 +52,5 @@ Whether music plays when this event triggers
 
 ## Credits
 
-**All credit goes to [Jensons](https://steamcommunity.com/profiles/76561198044525091) for originally creating this!**
+**All credit goes to [Jensons](https://steamcommunity.com/profiles/76561198044525091) for originally creating this!**\
 <https://steamcommunity.com/sharedfiles/filedetails/?id=1721137539>

@@ -1,0 +1,16 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/weapons/TFA_CRYBOW/Bow Body D"
+	"$bumpmap" "models/weapons/TFA_CRYBOW/Bow Body N"
+	"$phongexponenttexture" "models/weapons/TFA_CRYBOW/Bow Body S"
+	"$phong" "1"
+	"$phongboost" "6"
+	"$nocull" "1"
+	"$phongfresnelranges" "[0.15 0.65 1.65]"
+	"$phongalbedotint" "1"
+	"$halflambert" "1"
+	"$phongexponent" "85"
+	"$envmap" env_cubemap
+	"$envmaptint" "[0.25 0.35 0.25]"
+    "$normalmapalphaenvmapmask" 1
+}

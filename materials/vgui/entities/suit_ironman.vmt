@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "VGUI/entities/suit_ironman"
+	"$nolod" 1
+	"$vertexalpha" 1
+	"$vertexcolor" 1
+}

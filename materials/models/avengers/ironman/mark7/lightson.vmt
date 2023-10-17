@@ -1,0 +1,13 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/Avengers/IronMan/Mark7/Body_D"
+	"$bumpmap" "models/Avengers/IronMan/Mark7/Body_N"
+	"$envmap" "env_cubemap"
+	"$normalmapalphaenvmapmask" "1"
+	"$envmaptint"	"[.2 .2 1]"
+	"$phong" "1"
+	"$phongboost" "1"
+	"$phongexponenttexture" "models/Avengers/IronMan/Mark7/Body_Phong"
+	"$phongtint" "[1 1 1]"
+	"$phongfresnelranges" "[.5 .5 .5]"
+}

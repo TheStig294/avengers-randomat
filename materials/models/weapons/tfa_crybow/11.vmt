@@ -1,0 +1,8 @@
+"VertexLitGeneric"
+{
+	$basetexture "models/weapons/TFA_CRYBOW/11"
+	$translucent 1
+	$selfillum 1
+	$additive 1
+	$nocull 1
+}

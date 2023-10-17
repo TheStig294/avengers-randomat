@@ -1,0 +1,6 @@
+"VertexLitGeneric"
+{
+	"$baseTexture" "models\weapons\Q2Blaster\orange"
+	$selfillum 1
+	$additive 1
+}

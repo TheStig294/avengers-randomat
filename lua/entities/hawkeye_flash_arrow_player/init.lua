@@ -1,6 +1,6 @@
 AddCSLuaFile("cl_init.lua") -- Make sure clientside
 AddCSLuaFile("shared.lua") -- and shared scripts are sent.
-include('shared.lua')
+include("shared.lua")
 local FLASH_INTENSITY = 2250 --the higher the number, the longer the flash will be whitening your screen
 
 local function simplifyangle(angle)
@@ -44,18 +44,15 @@ function ENT:Initialize()
 	timer.Create("tragetfinder", 2, 1, function()
 		for k, pl in pairs(player.GetAll()) do
 			if CanVictimSeeUs(self:FindTarget(pl), self) then
-				self:EmitSound(Sound("weapons/flashbang/flashbang_explode" .. math.random(1, 2) .. ".wav"))
+				self:EmitSound(Sound("weapons/flashbang/flashbang_explode" .. math.random(2) .. ".wav"))
 				local ang = (self:GetPos() - pl:GetShootPos()):GetNormalized():Angle()
 				local tracedata = {}
 				tracedata.start = pl:GetPos()
 				tracedata.endpos = self:GetPos()
 				tracedata.filter = pl
-				local traceRes = pl:GetEyeTrace()
-				local tr = util.TraceLine(tracedata)
 				local pitch = simplifyangle(ang.p - pl:EyeAngles().p)
 				local yaw = simplifyangle(ang.y - pl:EyeAngles().y)
 				local dist = pl:GetShootPos():Distance(self:GetPos())
-				local endtime = FLASH_INTENSITY / dist
 				local endtime = FLASH_INTENSITY / dist
 
 				if endtime > 6 then
@@ -68,21 +65,18 @@ function ENT:Initialize()
 				tenthendtime = math.floor((endtime - simpendtime) * 10)
 
 				--in FOV
-				if (pitch > -45 and pitch < 45 and yaw > -45 and yaw < 45) or (pl:GetEyeTrace().Entity and pl:GetEyeTrace().Entity == self) then
-				else --pl:PrintMessage(HUD_PRINTTALK, "In FOV");
-					--pl:PrintMessage(HUD_PRINTTALK, "Not in FOV");
+				if not ((pitch > -45 and pitch < 45 and yaw > -45 and yaw < 45) or (pl:GetEyeTrace().Entity and pl:GetEyeTrace().Entity == self)) then
 					endtime = endtime / 2
 				end
 
 				--if you're already flashed
-				if pl:GetNetworkedFloat("RCS_flashed_time") > CurTime() then
-					pl:SetNetworkedFloat("RCS_flashed_time", endtime + pl:GetNetworkedFloat("RCS_flashed_time") + CurTime() - pl:GetNetworkedFloat("RCS_flashed_time_start")) --add more to it
+				if pl:GetNWFloat("RCS_flashed_time") > CurTime() then
+					pl:SetNWFloat("RCS_flashed_time", endtime + pl:GetNWFloat("RCS_flashed_time") + CurTime() - pl:GetNWFloat("RCS_flashed_time_start")) --add more to it
 				else --not flashed
-					pl:SetNetworkedFloat("RCS_flashed_time", endtime + CurTime())
+					pl:SetNWFloat("RCS_flashed_time", endtime + CurTime())
 				end
 
-				pl:SetNetworkedFloat("RCS_flashed_time_start", CurTime())
-			else
+				pl:SetNWFloat("RCS_flashed_time_start", CurTime())
 			end
 
 			self:Remove()
@@ -130,17 +124,15 @@ function CanVictimSeeUs(TargetAng, selfang)
 	if selfang:GetParent() == TargetAng then
 		return true
 	else
-		if selfang:GetModel() ~= "models/props/de_tides/vending_turtle.mdl" then
-			if IsValid(TargetAng) then
-				local ViewEnt = TargetAng:GetViewEntity()
-				if ViewEnt == TargetAng and not HasVictimLOS(TargetAng, selfang) then return false end
-				local fov = TargetAng:GetFOV()
-				local Disp = selfang:GetPos() - ViewEnt:GetPos()
-				local Dist = Disp:Length()
-				local MaxCos = math.abs(math.cos(math.acos(Dist / math.sqrt(Dist * Dist + selfang.Width * selfang.Width)) + fov * (math.pi / 180)))
-				Disp:Normalize()
-				if Disp:Dot(ViewEnt:EyeAngles():Forward()) > MaxCos then return true end
-			end
+		if selfang:GetModel() ~= "models/props/de_tides/vending_turtle.mdl" and IsValid(TargetAng) then
+			local ViewEnt = TargetAng:GetViewEntity()
+			if ViewEnt == TargetAng and not HasVictimLOS(TargetAng, selfang) then return false end
+			local fov = TargetAng:GetFOV()
+			local Disp = selfang:GetPos() - ViewEnt:GetPos()
+			local Dist = Disp:Length()
+			local MaxCos = math.abs(math.cos(math.acos(Dist / math.sqrt(Dist * Dist + selfang.Width * selfang.Width)) + fov * (math.pi / 180)))
+			Disp:Normalize()
+			if Disp:Dot(ViewEnt:EyeAngles():Forward()) > MaxCos then return true end
 		end
 
 		return false

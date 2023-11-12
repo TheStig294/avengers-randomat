@@ -164,7 +164,6 @@ function SWEP:Equip()
 end
 
 function plyMeta:GetRepulsorBeamCharge()
-    local active_entity = self:GetActiveWeapon()
     if not IsValid(self) then return 0 end
     local active_entity = self:GetActiveWeapon()
     if not active_entity or not active_entity:IsValid() then return 0 end
@@ -335,8 +334,6 @@ function SWEP:DrawWeaponSelection(x, y, wide, tall, alpha)
     -- Set us up the texture
     surface.SetDrawColor(255, 255, 255, alpha)
     surface.SetTexture(self.WepSelectIcon)
-    -- Lets get a sin wave to make it bounce
-    local fsin = 0
     -- Borders
     y = y + 10
     x = x + 10
@@ -350,37 +347,6 @@ end
 function entMeta:HandleSuitWeapons(ent)
 end
 
--- if ent:KeyDown(IN_WALK) and ent:KeyDown(IN_ATTACK) then
---     if ent:GetCurrentWeapon() == 1 then
---         if ent:GetNWInt(self.NW.NextThinkWeapon) < CurTime() then
---             if ent:GetSuitEnergy() > 4 then
---                 self:EmitSound("Weapon_SMG1.Single")
---                 self:ShootBullet(25, 3, 0.075)
---                 ent:SetSuitEnergy(ent:GetSuitEnergy() - 0.5)
---                 ent:SetNWInt(self.NW.NextThinkWeapon, CurTime() + 0.06)
---             end
---         end
---     end
---     if ent:GetCurrentWeapon() == 2 and SERVER then
---         if ent:GetNWInt(self.NW.NextThinkWeapon) < CurTime() then
---             local energy_amount = 5
---             if ent:GetSuitEnergy() < energy_amount then return end
---             if ent:GetRockets() < 1 then return end
---             ent:SetRockets(ent:GetRockets() - 1)
---             ent:SetSuitEnergy(ent:GetSuitEnergy() - energy_amount)
---             local im_missile = ents.Create("im_missile")
---             im_missile:SetNWInt("damage", 75)
---             if not im_missile or not IsValid(im_missile) then return end
---             if not ent or not ent:IsValid() then return end
---             im_missile:SetPos(ent:EyePos() + ent:EyeAngles():Up() * 150)
---             im_missile:Spawn()
---             im_missile:GetPhysicsObject():SetAngles(ent:EyeAngles())
---             im_missile:GetPhysicsObject():SetVelocity(ent:GetEyeTrace().HitPos - ent:GetPos())
---             ent:EmitSound("doors/door_latch1.wav")
---             ent:SetNWInt(self.NW.NextThinkWeapon, CurTime() + 0.3)
---         end
---     end
--- end
 function SWEP:Think()
     if not IsValid(self:GetOwner()) then return end
     local ent = self:GetOwner()
@@ -419,32 +385,28 @@ function SWEP:Think()
 
     self:HandleSuitWeapons(ent)
 
-    if ent:GetJetsEnabled() then
-        if ent:GetSuitEnergy() > 5 then
-            if ent:KeyDown(IN_SPEED) then
-                local aim_vec = ent:GetAimVector()
+    if ent:GetJetsEnabled() and ent:GetSuitEnergy() > 5 then
+        if ent:KeyDown(IN_SPEED) then
+            local aim_vec = ent:GetAimVector()
 
-                if Vector(ent:GetVelocity().x, ent:GetVelocity().y, 0):Length() > 1600 then
-                    aim_vec.x = 0
-                    aim_vec.y = 0
-                end
-
-                if aim_vec.z < 1 then
-                    aim_vec.z = aim_vec.z + 1
-                end
-
-                ent:SetVelocity(aim_vec * 10)
-            else
-                if ent:GetVelocity().z < 0 then
-                    ent:SetVelocity(Vector(0, 0, math.abs(ent:GetVelocity().z)))
-                end
+            if Vector(ent:GetVelocity().x, ent:GetVelocity().y, 0):Length() > 1600 then
+                aim_vec.x = 0
+                aim_vec.y = 0
             end
 
-            if ent:KeyPressed(IN_SPEED) then
-                if ent:IsOnGround() then
-                    ent:SetVelocity(Vector(0, 0, 350))
-                end
+            if aim_vec.z < 1 then
+                aim_vec.z = aim_vec.z + 1
             end
+
+            ent:SetVelocity(aim_vec * 10)
+        else
+            if ent:GetVelocity().z < 0 then
+                ent:SetVelocity(Vector(0, 0, math.abs(ent:GetVelocity().z)))
+            end
+        end
+
+        if ent:KeyPressed(IN_SPEED) and ent:IsOnGround() then
+            ent:SetVelocity(Vector(0, 0, 350))
         end
     end
 
@@ -458,7 +420,7 @@ function SWEP:Think()
 
     if ent:GetNWInt(self.NW.NextThink) < CurTime() then
         if self:GetOwner():GetJetsEnabled() then
-            local random_energy = math.random(1, 5)
+            local random_energy = math.random(5)
 
             if self:GetOwner():GetSuitEnergy() < random_energy then
                 self:EmitSound("ambient/energy/spark" .. math.random(5, 6) .. ".wav")
@@ -502,15 +464,9 @@ function SWEP:SecondaryAttack()
         local attacker = ent
         local inflictor = ent
 
-        if SERVER then
-            if IsValid(trace.Entity) then
-                if trace.Entity:GetClass() == "prop_physics" then
-                    if trace.Entity:GetPhysicsObject() then
-                        trace.Entity:GetPhysicsObject():EnableMotion(true)
-                        constraint.RemoveConstraints(trace.Entity, "Weld")
-                    end
-                end
-            end
+        if SERVER and IsValid(trace.Entity) and trace.Entity:GetClass() == "prop_physics" and trace.Entity:GetPhysicsObject() then
+            trace.Entity:GetPhysicsObject():EnableMotion(true)
+            constraint.RemoveConstraints(trace.Entity, "Weld")
         end
 
         ParticleEffect("btv3_energy", position, ent:EyeAngles(), nil)
@@ -546,16 +502,11 @@ function SWEP:OnRemove()
     if owner:IsValid() then return true end
 end
 
-local max_hit = 10
 local current_hit = {}
 local current_hit_mg = {}
-local last_bomb_dropped = 0
-local last_select = 0
-local chat_open = false
 
 function SWEP:DrawHUD()
     if SERVER then return end
-    local ent = LocalPlayer()
 
     if not COMBINE_OVERLAY then
         COMBINE_OVERLAY = Material("effects/combine_binocoverlay")
@@ -570,7 +521,6 @@ function SWEP:DrawHUD()
     surface.SetDrawColor(255, 255, 255, 50)
     surface.SetMaterial(COMBINE_OVERLAY)
     surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
-    local pos = LocalPlayer():GetEyeTrace().HitPos
 
     for k, v in pairs(ents.GetAll()) do
         if v:IsNPC() or string.sub(v:GetClass(), 1, 3) == "nz_" or v:IsPlayer() and v ~= LocalPlayer() and v:Alive() and v:Health() > 0 then
@@ -585,7 +535,6 @@ function SWEP:DrawHUD()
             local tr = util.TraceLine(trace)
 
             if not tr.Hit then
-                local ent_pos_root = v:GetPos():ToScreen()
                 local ent_pos = (v:GetPos() + v:OBBCenter()):ToScreen()
                 local ent_pos_max, ent_pos_min = v:Get2DBounds()
                 local ent_screen_distance = Vector(ent_pos.x, ent_pos.y, 0):Distance(Vector(ScrW() / 2, ScrH() / 2, 0))
@@ -606,83 +555,12 @@ function SWEP:DrawHUD()
     end
 
     for k, v in pairs(player.GetAll()) do
-        if v ~= LocalPlayer() then
-            if IsValid(v:GetActiveWeapon()) and v:GetActiveWeapon():GetClass() == "avengers_ironman" then
-                local ent_pos = v:GetPos():ToScreen()
-                draw.SimpleText("IRON MAN SIGNATURE", "TargetIDSmall", ent_pos.x, ent_pos.y, Color(255, 128, 32), TEXT_ALIGN_CENTER, 1)
-                draw.SimpleText(math.Round(v:GetPos():Distance(LocalPlayer():GetPos())) / 100 .. "m", "TargetIDSmall", ent_pos.x, ent_pos.y + 15, Color(255, 128, 32), TEXT_ALIGN_CENTER, 1)
-            end
+        if v ~= LocalPlayer() and IsValid(v:GetActiveWeapon()) and v:GetActiveWeapon():GetClass() == "avengers_ironman" then
+            local ent_pos = v:GetPos():ToScreen()
+            draw.SimpleText("IRON MAN SIGNATURE", "TargetIDSmall", ent_pos.x, ent_pos.y, Color(255, 128, 32), TEXT_ALIGN_CENTER, 1)
+            draw.SimpleText(math.Round(v:GetPos():Distance(LocalPlayer():GetPos())) / 100 .. "m", "TargetIDSmall", ent_pos.x, ent_pos.y + 15, Color(255, 128, 32), TEXT_ALIGN_CENTER, 1)
         end
     end
-    -- if LocalPlayer():KeyDown(IN_USE) and LocalPlayer():KeyDown(IN_WALK) and not chat_open and last_select < CurTime() then
-    --     net.Start("SwitchWeapon")
-    --     net.SendToServer()
-    --     last_select = CurTime() + 0.5
-    -- end
-    -- if input.IsKeyDown(KEY_G) and not chat_open then
-    --     local v = LocalPlayer():GetEyeTrace().Entity
-    --     if IsValid(v) and (v:IsNPC() or string.sub(v:GetClass(), 1, 3) == "nz_" or v:IsPlayer()) and LocalPlayer() ~= v then
-    --         if not table.HasValue(current_hit, v) and #current_hit < max_hit then
-    --             table.insert(current_hit, v)
-    --             surface.PlaySound("buttons/combine_button_locked.wav")
-    --         end
-    --     end
-    --     for k, target in pairs(current_hit) do
-    --         if IsValid(target) then
-    --             local screen_pos = target:EyePos():ToScreen()
-    --             local screen_rt_pos = target:GetPos():ToScreen()
-    --             surface.DrawCircle(screen_pos.x + 5, screen_pos.y + 5, 5, 255, 0, 0)
-    --             draw.SimpleText("RELEASE G TO RELEASE ROCKETS", "HudHintTextSmall", screen_rt_pos.x, screen_rt_pos.y, Color(255, 0, 0), TEXT_ALIGN_CENTER, 1)
-    --         end
-    --     end
-    -- else
-    --     if #current_hit > 0 then
-    --         net.Start("SendRockets")
-    --         net.WriteTable(current_hit)
-    --         net.SendToServer()
-    --     end
-    --     table.Empty(current_hit)
-    -- end
-    -- if input.IsKeyDown(KEY_B) and not chat_open then
-    --     local v = LocalPlayer():GetEyeTrace().Entity
-    --     if (v:IsNPC() or string.sub(v:GetClass(), 1, 3) == "nz_" or v:IsPlayer()) and LocalPlayer() ~= v then
-    --         if not table.HasValue(current_hit_mg, v) and #current_hit_mg < max_hit then
-    --             table.insert(current_hit_mg, v)
-    --             surface.PlaySound("buttons/combine_button_locked.wav")
-    --         end
-    --     end
-    --     for k, target in pairs(current_hit_mg) do
-    --         if IsValid(target) then
-    --             local screen_pos = target:EyePos():ToScreen()
-    --             local screen_rt_pos = target:GetPos():ToScreen()
-    --             surface.DrawCircle(screen_pos.x + 5, screen_pos.y + 5, 5, 255, 250, 0)
-    --             draw.SimpleText("RELEASE B TO SHOOT", "HudHintTextSmall", screen_rt_pos.x, screen_rt_pos.y, Color(255, 250, 0), TEXT_ALIGN_CENTER, 1)
-    --         end
-    --     end
-    -- else
-    --     if #current_hit_mg > 0 then
-    --         net.Start("ShootTo")
-    --         net.WriteTable(current_hit_mg)
-    --         net.SendToServer()
-    --     end
-    --     table.Empty(current_hit_mg)
-    -- end
-    -- if input.IsKeyDown(KEY_H) and not chat_open then
-    --     local trace = {}
-    --     trace.start = LocalPlayer():GetPos()
-    --     trace.endpos = LocalPlayer():GetPos() - Vector(0, 0, 35000)
-    --     trace.filter = LocalPlayer()
-    --     local tr = util.TraceLine(trace)
-    --     local groundpos = LocalPlayer():GetPos().z - tr.HitPos.z
-    --     if math.abs(groundpos) > 1000 then
-    --         if last_bomb_dropped < CurTime() then
-    --             last_bomb_dropped = CurTime() + 1
-    --             net.Start("SpawnRocket")
-    --             net.WriteInt(6, 32)
-    --             net.SendToServer()
-    --         end
-    --     end
-    -- end
 end
 
 function SWEP:HUDShouldDraw(element)
@@ -759,7 +637,6 @@ function SWEP:Reload()
 end
 
 net.Receive("SwitchWeapon", function(len, ply)
-    local current_weapon = ply:GetCurrentWeapon()
     local next_weapon = ply:GetCurrentWeapon() + 1
 
     if IsValid(ply:GetActiveWeapon()) then
@@ -778,7 +655,6 @@ net.Receive("SendRockets", function(len, ply)
     local players = net.ReadTable()
 
     for k, v in pairs(players) do
-        local energy_amount = 5
         if ply:GetSuitEnergy() < 5 then continue end
         if ply:GetRockets() < 1 then continue end
         ply:SetSuitEnergy(ply:GetSuitEnergy() - 5)
@@ -850,8 +726,6 @@ net.Receive("SpawnRocket", function(len, ply)
 end)
 
 if CLIENT then
-    local material_redlaser = Material("cable/redlaser")
-    local material_repulsor = Material("cable/physbeam")
     local material_repulsor2 = Material("effects/laser1")
     local material_repulsor_test = Material("effects/beam_generic_2")
     local beam_table = {}
@@ -877,7 +751,6 @@ if CLIENT then
         local active_entity = pl:GetActiveWeapon()
         if not active_entity or not active_entity:IsValid() then return 0 end
         if active_entity:GetClass() ~= "avengers_ironman" then return 0 end
-        local fov = pl:GetFOV()
         local aspect = ScrW() / ScrH()
         local factor = 1000
         local ang = pl:EyeAngles()
@@ -887,7 +760,6 @@ if CLIENT then
         local pos = Vector(1.01, aspect / 2, 0.5) * factor
         pos:Rotate(pl:EyeAngles())
         pos:Add(pl:GetBonePosition(pl:LookupBone("ValveBiped.Bip01_Head1")))
-        local width = math.max(0.2 * ScrW(), 200)
         local height = 64
         local scale = (1 / ScrW()) * aspect * factor
         cam.IgnoreZ(true)
@@ -927,12 +799,6 @@ if CLIENT then
             draw.SimpleText("RELATIVE ALTITUDE: " .. math.Round(math.abs(LocalPlayer():GetPos().z - tr.HitPos.z) / 100), "Trebuchet24", -100, height / 2 + hud_height, Color(255, 255, 255), TEXT_ALIGN_LEFT, 1)
             hud_height = hud_height + 30
 
-            -- if IsValid(pl:GetActiveWeapon()) and pl:GetCurrentWeapon() > 0 then
-            --     draw.SimpleText("CURRENT WEAPON: " .. pl:GetActiveWeapon().Weapons[pl:GetCurrentWeapon()], "Trebuchet24", -100, height / 2 + hud_height, Color(255, 255, 255), TEXT_ALIGN_LEFT, 1)
-            --     hud_height = hud_height + 30
-            -- end
-            -- draw.SimpleText("ROCKETS: " .. math.Round(pl:GetRockets()), "Trebuchet24", -100, height / 2 + hud_height, Color(255, 255, 255), TEXT_ALIGN_LEFT, 1)
-            -- hud_height = hud_height + 30
             if #current_hit > 0 then
                 draw.SimpleText("TARGETS LOCKED: " .. #current_hit .. " (MAX 10)", "Trebuchet24", -100, height / 2 + hud_height, Color(255, 0, 0), TEXT_ALIGN_LEFT, 1)
                 hud_height = hud_height + 30
@@ -985,7 +851,6 @@ if CLIENT then
 
     hook.Add("PreDrawTranslucentRenderables", "draw_repulsorbeam", function()
         if LocalPlayer():GetRepulsorBeamChargeInitialize() == true then
-            local ply = LocalPlayer()
             local trace = util.QuickTrace(LocalPlayer():EyePos() - Vector(0, 0, 15), LocalPlayer():EyeAngles():Forward() * 2500, LocalPlayer())
             render.SetMaterial(material_repulsor2)
             render.DrawBeam(LocalPlayer():EyePos() - Vector(0, 0, 15), trace.HitPos, LocalPlayer():GetRepulsorBeamCharge() / 7, 0, 12.5, Color(0, (LocalPlayer():GetRepulsorBeamCharge() / 65) * 255, 255, 255))
@@ -1049,14 +914,12 @@ if SERVER then
     hook.Add("GetFallDamage", "im_falldmg", function(ply, speed)
         local active_entity = ply:GetActiveWeapon()
 
-        if active_entity and active_entity:IsValid() then
-            if active_entity:GetClass() == "avengers_ironman" then
-                if ply:GetSuitEnergy() < speed / 30 then return end
-                ply:SetSuitEnergy(ply:GetSuitEnergy() - speed / 30)
-                ply:EmitSound("physics/metal/metal_barrel_impact_hard" .. math.random(5, 7) .. ".wav")
+        if active_entity and active_entity:IsValid() and active_entity:GetClass() == "avengers_ironman" then
+            if ply:GetSuitEnergy() < speed / 30 then return end
+            ply:SetSuitEnergy(ply:GetSuitEnergy() - speed / 30)
+            ply:EmitSound("physics/metal/metal_barrel_impact_hard" .. math.random(5, 7) .. ".wav")
 
-                return 0
-            end
+            return 0
         end
     end)
 
@@ -1065,19 +928,17 @@ if SERVER then
         local damage = dmg:GetDamage()
         local active_entity = ply:GetActiveWeapon()
 
-        if active_entity and active_entity:IsValid() then
-            if active_entity:GetClass() == "avengers_ironman" then
-                if ply:GetSuitEnergy() < damage / 10 then return end
-                ply:SetSuitEnergy(ply:GetSuitEnergy() - damage / 10)
-            end
+        if active_entity and active_entity:IsValid() and active_entity:GetClass() == "avengers_ironman" then
+            if ply:GetSuitEnergy() < damage / 10 then return end
+            ply:SetSuitEnergy(ply:GetSuitEnergy() - damage / 10)
         end
     end)
 
-    hook.Add("PlayerFootstep", "im_footstep", function(ply, pos, foot, sound, volume, filter)
+    hook.Add("PlayerFootstep", "im_footstep", function(ply, pos, foot, snd, volume, filter)
         local active_entity = ply:GetActiveWeapon()
-        if not active_entity or not active_entity:IsValid() then return false end
-        if active_entity:GetClass() ~= "avengers_ironman" then return false end
-        ply:EmitSound("player/footsteps/metal" .. math.random(1, 4) .. ".wav")
+        if not active_entity or not active_entity:IsValid() then return end
+        if active_entity:GetClass() ~= "avengers_ironman" then return end
+        ply:EmitSound("player/footsteps/metal" .. math.random(4) .. ".wav")
 
         return true
     end)

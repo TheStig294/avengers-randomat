@@ -182,11 +182,9 @@ function ENT:PhysicsCollide(data, physobj)
 		self:SetSolid(SOLID_NONE)
 		self:SetMoveType(MOVETYPE_NONE)
 
-		if IsValid(ent) and not data.HitEntity:IsWorld() then
-			if not ent:IsPlayer() and not ent:IsNPC() and ent:GetClass() ~= "dildo_arrow" then
-				self:SetPos(data.HitPos)
-				self:SetParent(ent)
-			end
+		if IsValid(ent) and not data.HitEntity:IsWorld() and not ent:IsPlayer() and not ent:IsNPC() and ent:GetClass() ~= "dildo_arrow" then
+			self:SetPos(data.HitPos)
+			self:SetParent(ent)
 		end
 
 		if self.Arrowtype ~= "explosive" then
@@ -197,33 +195,33 @@ function ENT:PhysicsCollide(data, physobj)
 
 				if (tr.MatType == MAT_BLOODYFLESH) or (tr.MatType == MAT_FLESH) then
 					util.Effect("BloodImpact", ef)
-					self:EmitSound("physics/flesh/flesh_impact_bullet" .. math.random(1, 5) .. ".wav", 80, 100)
-					self:EmitSound("weapons/crossbow/hitbod" .. math.random(1, 2) .. ".wav", 90, 100)
+					self:EmitSound("physics/flesh/flesh_impact_bullet" .. math.random(5) .. ".wav", 80, 100)
+					self:EmitSound("weapons/crossbow/hitbod" .. math.random(2) .. ".wav", 90, 100)
 				elseif tr.MatType == MAT_CONCRETE then
 					util.Effect("GlassImpact", ef)
-					self:EmitSound("physics/concrete/concrete_impact_bullet" .. math.random(1, 4) .. ".wav", 80, 100)
+					self:EmitSound("physics/concrete/concrete_impact_bullet" .. math.random(4) .. ".wav", 80, 100)
 				elseif tr.MatType == MAT_PLASTIC then
 					util.Effect("GlassImpact", ef)
-					self:EmitSound("physics/plastic/plastic_box_impact_hard" .. math.random(1, 4) .. ".wav", 80, 100)
+					self:EmitSound("physics/plastic/plastic_box_impact_hard" .. math.random(4) .. ".wav", 80, 100)
 				elseif (tr.MatType == MAT_GLASS) or (tr.MatType == MAT_TILE) then
 					util.Effect("GlassImpact", ef)
-					self:EmitSound("physics/concrete/concrete_impact_bullet" .. math.random(1, 4) .. ".wav", 80, 100)
+					self:EmitSound("physics/concrete/concrete_impact_bullet" .. math.random(4) .. ".wav", 80, 100)
 				elseif (tr.MatType == MAT_METAL) or (tr.MatType == MAT_GRATE) then
 					util.Effect("MetalSpark", ef)
-					self:EmitSound("physics/metal/metal_solid_impact_bullet" .. math.random(1, 4) .. ".wav", 80, 100)
+					self:EmitSound("physics/metal/metal_solid_impact_bullet" .. math.random(4) .. ".wav", 80, 100)
 				elseif tr.MatType == MAT_WOOD then
 					util.Effect("SmallImpact", ef)
-					self:EmitSound("physics/wood/wood_solid_impact_bullet" .. math.random(1, 5) .. ".wav", 80, 100)
+					self:EmitSound("physics/wood/wood_solid_impact_bullet" .. math.random(5) .. ".wav", 80, 100)
 				elseif (tr.MatType == MAT_DIRT) or (tr.MatType == MAT_SAND) then
 					util.Effect("SmallImpact", ef)
-					self:EmitSound("physics/surfaces/sand_impact_bullet" .. math.random(1, 4) .. ".wav", 80, 100)
+					self:EmitSound("physics/surfaces/sand_impact_bullet" .. math.random(4) .. ".wav", 80, 100)
 				end
 			end
 
 			if ent:IsWorld() then
-				self:EmitSound("physics/metal/sawblade_stick" .. math.random(1, 3) .. ".wav", 90, 100)
+				self:EmitSound("physics/metal/sawblade_stick" .. math.random(3) .. ".wav", 90, 100)
 			else
-				self:EmitSound("weapons/crossbow/hitbod" .. math.random(1, 2) .. ".wav", 90, 100)
+				self:EmitSound("weapons/crossbow/hitbod" .. math.random(2) .. ".wav", 90, 100)
 			end
 		end
 
@@ -238,13 +236,12 @@ function ENT:PhysicsCollide(data, physobj)
 
 		dmg:SetDamagePosition(data.HitPos)
 		dmg:SetDamageForce(vector_origin)
-		if self.Arrowtype == "normal" then end
 
 		if not self:GetParent():IsValid() and data.HitEntity:IsWorld() then
 			self:SetPos(data.HitPos)
 
 			timer.Simple(3, function()
-				self:EmitSound(Sound("weapons/flashbang/flashbang_explode" .. math.random(1, 2) .. ".wav"))
+				self:EmitSound(Sound("weapons/flashbang/flashbang_explode" .. math.random(2) .. ".wav"))
 
 				for _, pl in pairs(player.GetAll()) do
 					local ang = (self:GetPos() - pl:GetShootPos()):GetNormalized():Angle()
@@ -253,11 +250,9 @@ function ENT:PhysicsCollide(data, physobj)
 					tracedata.endpos = self:GetPos()
 					tracedata.filter = pl
 					local traceRes = pl:GetEyeTrace()
-					local tr = util.TraceLine(tracedata)
 					local pitch = simplifyangle(ang.p - pl:EyeAngles().p)
 					local yaw = simplifyangle(ang.y - pl:EyeAngles().y)
 					local dist = pl:GetShootPos():Distance(self:GetPos())
-					local endtime = FLASH_INTENSITY / dist
 
 					if traceRes.HitWorld and not tr.HitWorld then
 						local endtime = FLASH_INTENSITY / dist
@@ -272,20 +267,18 @@ function ENT:PhysicsCollide(data, physobj)
 						tenthendtime = math.floor((endtime - simpendtime) * 10)
 
 						--in FOV
-						if (pitch > -45 and pitch < 45 and yaw > -45 and yaw < 45) or (pl:GetEyeTrace().Entity and pl:GetEyeTrace().Entity == self) then
-						else --pl:PrintMessage(HUD_PRINTTALK, "In FOV");
-							--pl:PrintMessage(HUD_PRINTTALK, "Not in FOV");
+						if not ((pitch > -45 and pitch < 45 and yaw > -45 and yaw < 45) or (pl:GetEyeTrace().Entity and pl:GetEyeTrace().Entity == self)) then
 							endtime = endtime / 2
 						end
 
 						--if you're already flashed
-						if pl:GetNetworkedFloat("RCS_flashed_time") > CurTime() then
-							pl:SetNetworkedFloat("RCS_flashed_time", endtime + pl:GetNetworkedFloat("RCS_flashed_time") + CurTime() - pl:GetNetworkedFloat("RCS_flashed_time_start")) --add more to it
+						if pl:GetNWFloat("RCS_flashed_time") > CurTime() then
+							pl:SetNWFloat("RCS_flashed_time", endtime + pl:GetNWFloat("RCS_flashed_time") + CurTime() - pl:GetNWFloat("RCS_flashed_time_start")) --add more to it
 						else --not flashed
-							pl:SetNetworkedFloat("RCS_flashed_time", endtime + CurTime())
+							pl:SetNWFloat("RCS_flashed_time", endtime + CurTime())
 						end
 
-						pl:SetNetworkedFloat("RCS_flashed_time_start", CurTime())
+						pl:SetNWFloat("RCS_flashed_time_start", CurTime())
 					end
 				end
 
@@ -335,11 +328,9 @@ local function FireKillCredit(ent, dmginfo)
 	local attacker = dmginfo:GetAttacker()
 	local inflictor = dmginfo:GetInflictor()
 
-	if IsValid(attacker) and (attacker == inflictor) then
-		if attacker:GetClass() == "entityflame" and IsValid(ent.FireCreditor) then
-			dmginfo:SetInflictor(attacker)
-			dmginfo:SetAttacker(ent.FireCreditor)
-		end
+	if IsValid(attacker) and (attacker == inflictor) and attacker:GetClass() == "entityflame" and IsValid(ent.FireCreditor) then
+		dmginfo:SetInflictor(attacker)
+		dmginfo:SetAttacker(ent.FireCreditor)
 	end
 end
 

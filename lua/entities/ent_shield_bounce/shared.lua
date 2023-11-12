@@ -109,7 +109,7 @@ function ENT:PhysicsCollide(data, physobj)
 	end
 
 	if data.Speed > 20 and data.DeltaTime > 0.2 then
-		sound.Play(table.Random(BounceSounds), self:GetPos(), 70, math.random(90, 150), 1)
+		sound.Play(BounceSounds[math.random(#BounceSounds)], self:GetPos(), 70, math.random(90, 150), 1)
 	end
 
 	local newVel = physobj:GetVelocity():GetNormalized() * self.MaxSpeed

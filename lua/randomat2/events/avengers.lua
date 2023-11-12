@@ -80,7 +80,7 @@ function EVENT:Begin()
     timer.Simple(0.1, function()
         for _, ply in pairs(self:GetAlivePlayers(true)) do
             IsSlotEmpty(ply, 7)
-            local randomIndex = math.random(1, #avengersweapons)
+            local randomIndex = math.random(#avengersweapons)
             local weaponClass = avengersweapons[randomIndex]
             GiveWeapon(ply, weaponClass)
             local avengerName = avengername(weaponClass)

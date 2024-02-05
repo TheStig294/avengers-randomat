@@ -1,5 +1,5 @@
 AddCSLuaFile()
-SWEP.PrintName = "Storm Breaker"
+SWEP.PrintName = "Lightning Bolt"
 SWEP.Author = "Smooley"
 SWEP.Instructions = "Stormbreaker is an enchanted axe used by Thor. It was forged from Uru in the heart of a dying star on Nidavellir. Eitri claimed the weapon was the strongest weapon in Asgard history."
 SWEP.Spawnable = true
@@ -44,7 +44,7 @@ local unzap = Sound("ambient/levels/labs/electric_explosion2.wav")
 function SWEP:Equip()
 	timer.Simple(5, function()
 		if not IsValid(self) or not IsValid(self:GetOwner()) then return end
-		self:GetOwner():ChatPrint("STORM BREAKER: Left-click: High damage melee\nRight-click: Teleport")
+		self:GetOwner():ChatPrint("LIGHTNING BOLT: Left-click: High damage melee\nRight-click: Teleport")
 	end)
 end
 

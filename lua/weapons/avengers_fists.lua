@@ -214,8 +214,7 @@ function SWEP:Deploy()
     return true
 end
 
-local hulkGreen = Color(0, 255, 0, 230)
-local hulkGreenVector = Vector(0, 1, 0)
+local hulkGreen = Color(0, 125, 0, 230)
 
 function SWEP:Think()
     local owner = self:GetOwner()
@@ -223,14 +222,12 @@ function SWEP:Think()
     if not owner.GetActiveWeapon or not IsValid(owner:GetActiveWeapon()) then return end
 
     if owner:GetActiveWeapon():GetClass() == "avengers_fists" then
-        owner:SetColor(hulkGreen)
         local viewModel = owner:GetViewModel()
 
         if IsValid(viewModel) then
             viewModel:SetColor(hulkGreen)
         end
 
-        owner:SetPlayerColor(hulkGreenVector)
         self:Maxify()
         owner:SetJumpPower(350)
     else

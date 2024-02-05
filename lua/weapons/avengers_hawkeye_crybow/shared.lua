@@ -11,7 +11,7 @@ if GetConVar(SWEP.Gun .. "_allowed") ~= nil then
 end
 
 if CLIENT then
-	SWEP.PrintName = "Hawk Eye Bow"
+	SWEP.PrintName = "Hawkeye Bow"
 	SWEP.Slot = 6
 	SWEP.Icon = "vgui/ttt/FireBow"
 end
@@ -26,7 +26,7 @@ SWEP.Purpose = ""
 SWEP.Instructions = ""
 SWEP.MuzzleAttachment = "muzzle" -- Should be "1" for CSS models or "muzzle" for hl2 models
 SWEP.ShellEjectAttachment = "2" -- Should be "2" for CSS models or "1" for hl2 models
-SWEP.PrintName = "Hawk Eye Bow" -- Weapon name (Shown on HUD)	
+SWEP.PrintName = "Hawkeye Bow" -- Weapon name (Shown on HUD)	
 SWEP.SlotPos = 6 -- Position in the slot
 SWEP.DrawAmmo = true -- Should draw the default HL2 ammo counter
 SWEP.DrawWeaponInfoBox = false -- Should draw the weapon info box

@@ -9,7 +9,7 @@ local musicCvar = CreateConVar("randomat_avengers_music", 1, {FCVAR_ARCHIVE, FCV
 
 local function avengername(wept)
     if wept == "avengers_hawkeye_crybow" then
-        return "Hawk Eye"
+        return "Hawkeye"
     elseif wept == "avengers_nick_pistol" then
         return "Nick Fury"
     elseif wept == "avengers_fists" then
@@ -27,7 +27,7 @@ end
 
 local models = {
     -- https://steamcommunity.com/sharedfiles/filedetails/?id=2043830417
-    ["Hawk Eye"] = "models/hopwire/marvel/hawkeyepm.mdl",
+    ["Hawkeye"] = "models/hopwire/marvel/hawkeyepm.mdl",
     -- https://steamcommunity.com/sharedfiles/filedetails/?id=1739807857
     ["Nick Fury"] = "models/kryptonite/nick_fury/nick_fury.mdl",
     -- https://steamcommunity.com/sharedfiles/filedetails/?id=2043850322
@@ -36,8 +36,8 @@ local models = {
     ["Ant-Man"] = "models/kryptonite/ant_man/ant_man.mdl",
     -- https://steamcommunity.com/sharedfiles/filedetails/?id=189032607
     ["Captain America"] = "models/player/techknow/cpt_america/cpt_a_noshield.mdl",
-    -- https://steamcommunity.com/sharedfiles/filedetails/?id=1193960837
-    ["Thor"] = "models/kryptonite/thor_gladiator/thor_gladiator_new.mdl",
+    -- https://steamcommunity.com/sharedfiles/filedetails/?id=1372622824
+    ["Thor"] = "models/kryptonite/inf_thor/inf_thor.mdl",
     -- In-built
     ["Iron Man"] = "models/avengers/iron Man/mark7_player.mdl"
 }

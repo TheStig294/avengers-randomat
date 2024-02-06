@@ -187,8 +187,6 @@ if GetConVarNumber("sv_hawkeye_default_clip") == nil then
 else
 	if GetConVar("sv_hawkeye_default_clip"):GetInt() >= 0 then
 		print("Weapons on the TFBow Base will now spawn with " .. GetConVarNumber("sv_hawkeye_default_clip") .. " clips/quivers.")
-	else
-		print("Default clips will be not be modified")
 	end
 end
 

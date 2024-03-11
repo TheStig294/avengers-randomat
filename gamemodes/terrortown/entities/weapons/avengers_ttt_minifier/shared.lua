@@ -76,8 +76,8 @@ function SWEP:SecondaryAttack()
 end
 
 function SWEP:PreDrop()
-    if self.minified then
-        self:UnMinify()
+    if self.minified or self.maxified then
+        self:Reset(self.minified)
     end
 end
 

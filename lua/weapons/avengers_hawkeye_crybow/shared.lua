@@ -1,13 +1,11 @@
 -- Variables that are used on both client and server
 SWEP.Gun = "hawkeye_crybow" -- must be the name of your swep but NO CAPITALS!
 
-if GetConVar(SWEP.Gun .. "_allowed") ~= nil then
-	if not GetConVar(SWEP.Gun .. "_allowed"):GetBool() then
-		SWEP.Base = "hawkeye_blacklisted"
-		SWEP.PrintName = SWEP.Gun
+if ConVarExists(SWEP.Gun .. "_allowed") and not GetConVar(SWEP.Gun .. "_allowed"):GetBool() then
+	SWEP.Base = "hawkeye_blacklisted"
+	SWEP.PrintName = SWEP.Gun
 
-		return
-	end
+	return
 end
 
 if CLIENT then
@@ -79,11 +77,17 @@ SWEP.NearWallSightsPos = Vector(0, -11.056, -6.231)
 SWEP.NearWallSightsAng = Vector(60.502, 0, 0)
 local sndPowerUp = Sound("weapons/crossbow/hit1.wav")
 local sndPowerDown = Sound("Airboat.FireGunRevDown")
-local sndTooFar = Sound("buttons/button10.wav")
 SWEP.NextShot = CurTime()
 
 function SWEP:Initialize()
-	self:GetOwner():SetNWInt('Arrow', 1)
+	timer.Simple(0.1, function()
+		if not IsValid(self) then return end
+		local owner = self:GetOwner()
+
+		if IsValid(owner) then
+			owner:SetNWInt("Arrow", 1)
+		end
+	end)
 
 	if CLIENT and self:Clip1() == -1 then
 		self:SetClip1(self.Primary.DefaultClip)
@@ -206,7 +210,7 @@ function SWEP:PrimaryAttack()
 	end
 
 	if (game.SinglePlayer() and SERVER) or CLIENT then
-		self:SetNetworkedFloat("LastShootTime", CurTime())
+		self:SetNWFloat("LastShootTime", CurTime())
 	end
 end
 
@@ -227,7 +231,7 @@ function SWEP:SecondaryAttack()
 end
 
 function SWEP:DrawHUD()
-	if self:GetNetworkedBool("Ironsights") then return end
+	if self:GetNWBool("Ironsights") then return end
 	local x, y -- local, always
 
 	-- If we're drawing the local player, draw the crosshair where they're aiming
@@ -243,7 +247,7 @@ function SWEP:DrawHUD()
 	end
 
 	local scale = 10 * self.Primary.Cone
-	local LastShootTime = self:GetNetworkedFloat("LastShootTime", 0)
+	local LastShootTime = self:GetNWFloat("LastShootTime", 0)
 	-- Scale the size of the crosshair according to how long ago we fired our weapon
 	scale = scale * (2 - math.Clamp((CurTime() - LastShootTime) * 5, 0.0, 1.0))
 	--					R	G	B Alpha
@@ -270,7 +274,7 @@ function SWEP:DrawHUD()
 	surface.DrawText(arrowman .. " Arrow")
 end
 
-if GetConVar("sv_hawkeye_default_clip") == nil then
+if not ConVarExists("sv_hawkeye_default_clip") then
 	print("sv_hawkeye_default_clip is missing! You may have hit the lua limit!")
 else
 	if GetConVar("sv_hawkeye_default_clip"):GetInt() ~= -1 then
@@ -278,10 +282,8 @@ else
 	end
 end
 
-if GetConVar("sv_hawkeye_unique_slots") ~= nil then
-	if not GetConVar("sv_hawkeye_unique_slots"):GetBool() then
-		SWEP.SlotPos = 2
-	end
+if ConVarExists("sv_hawkeye_unique_slots") and not GetConVar("sv_hawkeye_unique_slots"):GetBool() then
+	SWEP.SlotPos = 2
 end
 
 --SWEP.IronSightsPos = Vector( -6.518, -4.646, 2.134 )
@@ -351,7 +353,7 @@ function SWEP:UpdateAttack()
 		vVel = vVel:GetNormalized() * math.Clamp(Distance, 0, 7)
 
 		if SERVER then
-			local gravity = GetConVarNumber("sv_Gravity")
+			local gravity = GetConVar("sv_gravity"):GetFloat()
 			vVel:Add(Vector(0, 0, (gravity / 100) * 1.5)) --Player speed. DO NOT MESS WITH THIS VALUE!
 
 			if zVel < 0 then

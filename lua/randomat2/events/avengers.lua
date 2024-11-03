@@ -5,7 +5,7 @@ EVENT.id = "avengers"
 
 EVENT.Categories = {"largeimpact", "item"}
 
-local musicCvar = CreateConVar("randomat_avengers_music", 1, {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "Whether music should play on event trigger", 0, 1)
+local musicCvar = CreateConVar("randomat_avengers_music", 1, FCVAR_ARCHIVE, "Whether music should play on event trigger", 0, 1)
 
 local function avengername(wept)
     if wept == "avengers_hawkeye_crybow" then

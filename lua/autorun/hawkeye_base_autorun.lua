@@ -174,47 +174,47 @@ if GetConVar("Debughawkeye") == nil then
 end
 
 if GetConVar("sv_hawkeye_weapon_strip") == nil then
-	CreateConVar("sv_hawkeye_weapon_strip", "0", {FCVAR_REPLICATED, FCVAR_NOTIFY, FCVAR_ARCHIVE}, "Allow the removal of empty weapons? 1 for true, 0 for false")
+	CreateConVar("sv_hawkeye_weapon_strip", "0", {FCVAR_REPLICATED, FCVAR_ARCHIVE}, "Allow the removal of empty weapons? 1 for true, 0 for false")
 end
 
 if GetConVar("sv_hawkeye_near_wall") == nil then
-	CreateConVar("sv_hawkeye_near_wall", "1", {FCVAR_REPLICATED, FCVAR_NOTIFY, FCVAR_ARCHIVE}, "Pull up your weapon and disable shooting when you're too close to a wall?")
+	CreateConVar("sv_hawkeye_near_wall", "1", {FCVAR_REPLICATED, FCVAR_ARCHIVE}, "Pull up your weapon and disable shooting when you're too close to a wall?")
 end
 
 if GetConVar("sv_hawkeye_damage_multiplier") == nil then
-	CreateConVar("sv_hawkeye_damage_multiplier", "1", {FCVAR_REPLICATED, FCVAR_NOTIFY, FCVAR_ARCHIVE}, "Multiplier for TFBow base projectile damage.")
+	CreateConVar("sv_hawkeye_damage_multiplier", "1", {FCVAR_REPLICATED, FCVAR_ARCHIVE}, "Multiplier for TFBow base projectile damage.")
 end
 
 if GetConVar("sv_hawkeye_default_clip") == nil then
-	CreateConVar("sv_hawkeye_default_clip", "-1", {FCVAR_REPLICATED, FCVAR_NOTIFY, FCVAR_ARCHIVE}, "How many clips will a weapon spawn with? Negative reverts to default values.")
+	CreateConVar("sv_hawkeye_default_clip", "-1", {FCVAR_REPLICATED, FCVAR_ARCHIVE}, "How many clips will a weapon spawn with? Negative reverts to default values.")
 end
 
 if GetConVar("sv_hawkeye_viewbob_intensity") == nil then
-	CreateConVar("sv_hawkeye_viewbob_intensity", "1", {FCVAR_REPLICATED, FCVAR_NOTIFY, FCVAR_ARCHIVE}, "How much the player view itself bobs.")
+	CreateConVar("sv_hawkeye_viewbob_intensity", "1", {FCVAR_REPLICATED, FCVAR_ARCHIVE}, "How much the player view itself bobs.")
 end
 
 if GetConVar("sv_hawkeye_gunbob_intensity") == nil then
-	CreateConVar("sv_hawkeye_gunbob_intensity", "1", {FCVAR_REPLICATED, FCVAR_NOTIFY, FCVAR_ARCHIVE}, "How much the gun itself bobs.")
+	CreateConVar("sv_hawkeye_gunbob_intensity", "1", {FCVAR_REPLICATED, FCVAR_ARCHIVE}, "How much the gun itself bobs.")
 end
 
 if GetConVar("sv_hawkeye_arrow_lifetime") == nil then
-	CreateConVar("sv_hawkeye_arrow_lifetime", "-1", {FCVAR_REPLICATED, FCVAR_NOTIFY, FCVAR_ARCHIVE}, "How many seconds do arrows last?  -1 for forever, 0 for no time.")
+	CreateConVar("sv_hawkeye_arrow_lifetime", "-1", {FCVAR_REPLICATED, FCVAR_ARCHIVE}, "How many seconds do arrows last?  -1 for forever, 0 for no time.")
 end
 
 if GetConVar("sv_hawkeye_unique_slots") == nil then
-	CreateConVar("sv_hawkeye_unique_slots", "1", {FCVAR_REPLICATED, FCVAR_NOTIFY, FCVAR_ARCHIVE}, "Give TFBow-based Weapons unique slots? 1 for true, 0 for false. RESTART AFTER CHANGING.")
+	CreateConVar("sv_hawkeye_unique_slots", "1", {FCVAR_REPLICATED, FCVAR_ARCHIVE}, "Give TFBow-based Weapons unique slots? 1 for true, 0 for false. RESTART AFTER CHANGING.")
 end
 
 if GetConVar("sv_hawkeye_velocity_multiplier") == nil then
-	CreateConVar("sv_hawkeye_velocity_multiplier", "1", {FCVAR_REPLICATED, FCVAR_NOTIFY, FCVAR_ARCHIVE}, "Arrow velocity multiplier.")
+	CreateConVar("sv_hawkeye_velocity_multiplier", "1", {FCVAR_REPLICATED, FCVAR_ARCHIVE}, "Arrow velocity multiplier.")
 end
 
 if GetConVar("sv_hawkeye_force_multiplier") == nil then
-	CreateConVar("sv_hawkeye_force_multiplier", "1", {FCVAR_REPLICATED, FCVAR_NOTIFY, FCVAR_ARCHIVE}, "Arrow force multiplier (not arrow velocity, but how much force they give on impact).")
+	CreateConVar("sv_hawkeye_force_multiplier", "1", {FCVAR_REPLICATED, FCVAR_ARCHIVE}, "Arrow force multiplier (not arrow velocity, but how much force they give on impact).")
 end
 
 if GetConVar("sv_hawkeye_dynamicaccuracy") == nil then
-	CreateConVar("sv_hawkeye_dynamicaccuracy", "1", {FCVAR_REPLICATED, FCVAR_NOTIFY, FCVAR_ARCHIVE}, "Dynamic acuracy?  (e.g.more accurate on crouch, less accurate on jumping.")
+	CreateConVar("sv_hawkeye_dynamicaccuracy", "1", {FCVAR_REPLICATED, FCVAR_ARCHIVE}, "Dynamic acuracy?  (e.g.more accurate on crouch, less accurate on jumping.")
 end
 
 if GetConVar("cl_hawkeye_scope_sensitivity_autoscale") == nil then

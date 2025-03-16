@@ -42,10 +42,10 @@ if CLIENT then
 	end
 
 	function SimulateFlash_REALCS_NOT_ANYTHINGELSE()
-		if LocalPlayer():GetNetworkedFloat("RCS_flashed_time") > CurTime() then
+		if LocalPlayer():GetNWFloat("RCS_flashed_time") > CurTime() then
 			local pl = LocalPlayer()
-			local e = pl:GetNetworkedFloat("RCS_flashed_time") --when it dies away
-			local s = pl:GetNetworkedFloat("RCS_flashed_time_start") --when it started
+			local e = pl:GetNWFloat("RCS_flashed_time") --when it dies away
+			local s = pl:GetNWFloat("RCS_flashed_time_start") --when it started
 			local alpha
 
 			if e - CurTime() > DIETIMER then
@@ -65,8 +65,8 @@ if CLIENT then
 	--motion blur and other junk
 	local function SimulateBlur_REALCS_NOT_ANYTHINGELSE()
 		local pl = LocalPlayer()
-		local e = pl:GetNetworkedFloat("RCS_flashed_time") + EFFECT_DELAY --when it dies away
-		local s = pl:GetNetworkedFloat("RCS_flashed_time_start") --when it started
+		local e = pl:GetNWFloat("RCS_flashed_time") + EFFECT_DELAY --when it dies away
+		local s = pl:GetNWFloat("RCS_flashed_time_start") --when it started
 
 		if e > CurTime() and e - EFFECT_DELAY - CurTime() <= DIETIMER then
 			local pf = 1 - (CurTime() - (e - DIETIMER)) / DIETIMER

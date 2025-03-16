@@ -41,11 +41,6 @@ SWEP.InLoadoutFor = nil
 SWEP.AllowDrop = true
 SWEP.IsSilent = false
 SWEP.NoSights = true
-
-function SWEP:TranslateFOV(fov)
-	return fov - 20
-end
-
 SWEP.IronSightsPos = Vector(-5.95, -4, 2.799)
 SWEP.IronSightsAng = Vector(0, 0, 0)
 
@@ -57,7 +52,7 @@ function SWEP:Equip()
 end
 
 function SWEP:DrawHUD()
-	if self:GetNetworkedBool("Ironsights") then return end
+	if self:GetNWBool("Ironsights") then return end
 	local x, y -- local, always
 
 	-- If we're drawing the local player, draw the crosshair where they're aiming
@@ -73,7 +68,7 @@ function SWEP:DrawHUD()
 	end
 
 	local scale = 10 * self.Primary.Cone
-	local LastShootTime = self:GetNetworkedFloat("LastShootTime", 0)
+	local LastShootTime = self:GetNWFloat("LastShootTime", 0)
 	-- Scale the size of the crosshair according to how long ago we fired our weapon
 	scale = scale * (2 - math.Clamp((CurTime() - LastShootTime) * 5, 0.0, 1.0))
 	--					R	G	B Alpha

@@ -144,51 +144,6 @@ SWEP.ArrowModel = "models/weapons/w_tfa_arrow.mdl" --The arrow model.
 --SWEP.ArrowVelocity = 1600 --Uncomment the first set of two dashes to enable.  This allows you to set a manual velocity.
 --Stuff you shouldn't touch after this
 SWEP.DrawCrosshairDefault = false
-local ConDamageMultiplier = 1
-
-if GetConVar("sv_hawkeye_damage_multiplier") == nil then
-	ConDamageMultiplier = 1
-	print("hawkeye_damage_multiplier is missing! You may have hit the lua limit! Reverting multiplier to 1.")
-else
-	ConDamageMultiplier = GetConVar("sv_hawkeye_damage_multiplier"):GetFloat()
-
-	if ConDamageMultiplier < 0 then
-		ConDamageMultiplier = ConDamageMultiplier * -1
-		print("Your damage multiplier was in the negatives. What were you thinking? Your damage multiplier is now corrected to " .. ConDamageMultiplier .. ".")
-	end
-end
-
-function hawkeye_convar_damage_multiplier(cvar, previous, new)
-	print("multiplier has been changed ")
-
-	if GetConVar("sv_hawkeye_damage_multiplier") == nil then
-		ConDamageMultiplier = 1
-		print("hawkeye_damage_multiplier is missing! Reverting to defaults.")
-	else
-		ConDamageMultiplier = GetConVar("sv_hawkeye_damage_multiplier"):GetFloat()
-
-		if ConDamageMultiplier < 0 then
-			ConDamageMultiplier = ConDamageMultiplier * -1
-			print("Your damage multiplier was in the negatives. What were you thinking? Your damage multiplier is now corrected to " .. ConDamageMultiplier .. ".")
-		end
-	end
-end
-
-cvars.AddChangeCallback("sv_hawkeye_damage_multiplier", hawkeye_convar_damage_multiplier)
-
-function hawkeye_new_clips(cvar, previous, new)
-	print("The default clip multiplier has changed. A server restart will be required to apply these changes.")
-end
-
-cvars.AddChangeCallback("sv_hawkeye_default_clip", hawkeye_new_clips)
-
-if GetConVarNumber("sv_hawkeye_default_clip") == nil then
-	print("sv_hawkeye_default_clip is missing! You have likely reached the lua limit.")
-else
-	if GetConVar("sv_hawkeye_default_clip"):GetInt() >= 0 then
-		print("Weapons on the TFBow Base will now spawn with " .. GetConVarNumber("sv_hawkeye_default_clip") .. " clips/quivers.")
-	end
-end
 
 local function pow(num, power)
 	return math.pow(num, power)
@@ -543,15 +498,9 @@ function SWEP:CalculateConeRecoil()
 	if not IsValid(self:GetOwner()) then return 0, 0 end
 	local CurrentRecoil
 	local CurrentCone
-	local basedamage
-	local tmpiron = self:GetIronSights()
 	local dynacc = false
 	local isr = self:GetIronSightsRatio()
-
-	if GetConVarNumber("sv_hawkeye_dynamicaccuracy", 1) == 1 then
-		dynacc = true
-	end
-
+	dynacc = true
 	local isr_1 = math.Clamp(isr * 2, 0, 1)
 	local isr_2 = math.Clamp((isr - 0.5) * 2, 0, 1)
 	local acv = self.Primary.Spread or self.Primary.Accuracy
@@ -596,15 +545,9 @@ function SWEP:ClientCalculateConeRecoil()
 	if not IsValid(self:GetOwner()) then return 0, 0 end
 	local CurrentRecoil
 	local CurrentCone
-	local basedamage
-	local tmpiron = self:GetIronSights()
 	local dynacc = false
 	local isr = self.CLIronSightsProgress
-
-	if GetConVarNumber("sv_hawkeye_dynamicaccuracy", 1) == 1 then
-		dynacc = true
-	end
-
+	dynacc = true
 	local isr_1 = math.Clamp(isr * 2, 0, 1)
 	local isr_2 = math.Clamp((isr - 0.5) * 2, 0, 1)
 	local acv = self.Primary.Spread or self.Primary.Accuracy
@@ -895,8 +838,7 @@ function SWEP:ShootBulletInformation()
 	local CurrentDamage
 	local CurrentCone, CurrentRecoil = self:CalculateConeRecoil()
 	local tmpranddamage = math.Rand(.85, 1.3)
-	basedamage = ConDamageMultiplier * self.Primary.Damage
-	CurrentDamage = basedamage * tmpranddamage
+	CurrentDamage = self.Primary.Damage * tmpranddamage
 	self:ShootBullet(CurrentDamage, CurrentRecoil, self.Primary.NumShots, CurrentCone)
 end
 
@@ -912,33 +854,15 @@ function SWEP:PrimaryAttack()
 
 	if self:GetNearWallRatio() > 0.05 then return end
 
-	if self:CanPrimaryAttack() and self:GetOwner():IsPlayer() then
-		if self:GetReloading() == false and self:GetSprinting() == false then
-			self:ShootBulletInformation()
-			self:TakePrimaryAmmo(1)
-			self:SetShooting(true)
-			self:SetShootingEnd(CurTime() + 1 / (self.Primary.RPM / 60))
-			self:SetNextPrimaryFire(CurTime() + 1 / (self.Primary.RPM / 60))
+	if self:CanPrimaryAttack() and self:GetOwner():IsPlayer() and not self:GetReloading() and not self:GetSprinting() then
+		self:ShootBulletInformation()
+		self:TakePrimaryAmmo(1)
+		self:SetShooting(true)
+		self:SetShootingEnd(CurTime() + 1 / (self.Primary.RPM / 60))
+		self:SetNextPrimaryFire(CurTime() + 1 / (self.Primary.RPM / 60))
 
-			if self.Primary.Sound then
-				self:EmitSound(self.Primary.Sound)
-			end
-
-			--if CLIENT then
-			--[[
-				if self:Clip1() <= 0 and self:GetOwner():GetAmmoCount( self:GetPrimaryAmmoType() ) > 0 and ( (CLIENT and GetConVarNumber("cl_hawkeye_autoreload",0)!=0) or ( SERVER and self:GetOwner():GetInfoNum("cl_hawkeye_autoreload",0)!=0) ) then
-					timer.Simple(1/(self.Primary.RPM/60),function()
-						if IsValid(self) then
-							if self:GetHolstering()==false then
-								self:Reload()
-							end
-						end
-					end)
-				end
-				]]
-			--
-			--end
-			self:DoAmmoCheck()
+		if self.Primary.Sound then
+			self:EmitSound(self.Primary.Sound)
 		end
 	end
 end
@@ -974,10 +898,10 @@ function SWEP:ShootBullet(damage, recoil, num_bullets, aimcone)
 				local randval = math.Rand(-aimcone / 2, aimcone / 2) * 90
 				tmpang:RotateAroundAxis(tmpang:Right(), randval)
 				arrow:SetAngles(tmpang)
-				arrow.velocity = tmpang:Forward() * 1600 * math.sqrt(damage) * GetConVarNumber("sv_hawkeye_velocity_multiplier", 1)
+				arrow.velocity = tmpang:Forward() * 1600 * math.sqrt(damage)
 
 				if self.ArrowVelocity then
-					arrow.velocity = tmpang:Forward() * self.ArrowVelocity * GetConVarNumber("sv_hawkeye_velocity_multiplier", 1)
+					arrow.velocity = tmpang:Forward() * self.ArrowVelocity
 				end
 
 				arrow.velocity = arrow.velocity + self:GetOwner():GetVelocity() * 0.75
@@ -1034,41 +958,11 @@ function SWEP:ShootEffects()
 end
 
 function SWEP:DoAmmoCheck()
-	if IsValid(self) then
-		if SERVER and GetConVar("sv_hawkeye_weapon_strip"):GetBool() then
-			if self:Clip1() == 0 and self:GetOwner():GetAmmoCount(self:GetPrimaryAmmoType()) == 0 then
-				timer.Simple(.1, function()
-					if SERVER then
-						if IsValid(self) then
-							if IsValid(self:GetOwner()) then
-								self:GetOwner():StripWeapon(self.Gun)
-							end
-						end
-					end
-				end)
-			end
-		end
-	end
 end
 
 function SWEP:UserInput()
 	self.OldIronsights = self:GetIronSights()
-	local is = false
-
-	if IsValid(self:GetOwner()) then
-		if (CLIENT and GetConVarNumber("cl_hawkeye_ironsights_toggle", 0) == 0) or (SERVER and self:GetOwner():GetInfoNum("cl_hawkeye_ironsights_toggle", 0) == 0) then
-			if self:GetOwner():KeyDown(IN_ATTACK2) then
-				is = true
-			end
-		else
-			is = self:GetIronSightsRaw()
-
-			if self:GetOwner():KeyPressed(IN_ATTACK2) then
-				is = not is
-			end
-		end
-	end
-
+	local is = IsValid(self:GetOwner()) and self:GetOwner():KeyDown(IN_ATTACK2)
 	self:SetIronSightsRaw(is)
 	self:SetIronSights(is)
 	self.OldSprinting = self:GetSprinting()
@@ -1105,10 +999,6 @@ function SWEP:CalculateNearWallSH()
 		end
 	end
 
-	if GetConVarNumber("sv_hawkeye_near_wall", 1) == 0 then
-		vnearwall = false
-	end
-
 	self:SetNearWallRatio(math.Approach(self:GetNearWallRatio(), vnearwall and 1 or 0, FrameTime() / self.NearWallTime))
 end
 
@@ -1131,10 +1021,6 @@ function SWEP:CalculateNearWallCLF()
 				vnearwall = true
 			end
 		end
-	end
-
-	if GetConVarNumber("sv_hawkeye_near_wall", 1) == 0 then
-		vnearwall = false
 	end
 
 	self.CLNearWallProgress = math.Approach(self.CLNearWallProgress, vnearwall and 1 or 0, FrameTime() / self.NearWallTime * GetConVarNumber("host_timescale", 1))
@@ -1190,10 +1076,6 @@ function SWEP:IronsSprint()
 
 	self:SetIronSights(is)
 	self:SetSprinting(spr)
-
-	if (CLIENT and GetConVarNumber("cl_hawkeye_ironsights_resight", 0) == 0) or (SERVER and self:GetOwner():GetInfoNum("cl_hawkeye_ironsights_resight", 0) == 0) then
-		self:SetIronSightsRaw(is)
-	end
 end
 
 function SWEP:ProcessHoldType()
@@ -1282,7 +1164,7 @@ function SWEP:ProcessTimers()
 		self:SetShooting(false)
 		isshooting = false
 
-		if self:Clip1() <= 0 and self:GetOwner():GetAmmoCount(self:GetPrimaryAmmoType()) > 0 and ((CLIENT and GetConVarNumber("cl_hawkeye_autoreload", 0) ~= 0) or (SERVER and self:GetOwner():GetInfoNum("cl_hawkeye_autoreload", 0) ~= 0)) then
+		if self:Clip1() <= 0 and self:GetOwner():GetAmmoCount(self:GetPrimaryAmmoType()) > 0 then
 			if not self:GetHolstering() then
 				self:Reload()
 				self:SetNextIdleAnim(CurTime() + 0.05)
@@ -1427,13 +1309,9 @@ end
 
 function SWEP:AdjustMouseSensitivity()
 	if self:GetIronSights() then
-		local sensval = 1 * GetConVarNumber("cl_hawkeye_scope_sensitivity", 1) / 100
+		local sensval = 1 / 100
 
-		if GetConVarNumber("cl_hawkeye_scope_sensitivity_autoscale", 1) == 1 then
-			return sensval * (self:GetOwner():GetFOV() / self.DefaultFOV)
-		else
-			return sensval
-		end
+		return sensval * (self:GetOwner():GetFOV() / self.DefaultFOV)
 	end
 
 	return 1
@@ -1596,7 +1474,7 @@ function SWEP:GetViewModelPosition(pos, ang)
 	target:Add(ang:Up() * tmp_nwsightspos.z)
 	pos = QerpVector(nwp, pos, target)
 	--Start viewbob code
-	local gunbobintensity = GetConVarNumber("sv_hawkeye_gunbob_intensity", 1)
+	local gunbobintensity = 1
 	local newpos, newang = self:CalculateBob(Vector(0, 0, 0), Angle(0, 0, 0))
 	ang:RotateAroundAxis(ang:Right(), newang.p * gunbobintensity)
 	ang:RotateAroundAxis(ang:Up(), newang.y * gunbobintensity)
@@ -1611,7 +1489,7 @@ end
 function SWEP:CalcView(ply, pos, ang, fov)
 	if ply ~= LocalPlayer() then return end
 	if not CLIENT then return end
-	local viewbobintensity = 0.3 * GetConVarNumber("sv_hawkeye_viewbob_intensity", 1)
+	local viewbobintensity = 0.3
 	local newpos, newang = self:CalculateBob(Vector(0, 0, 0), Angle(0, 0, 0))
 	ang:RotateAroundAxis(ang:Right(), newang.p * viewbobintensity * -0.3)
 	ang:RotateAroundAxis(ang:Up(), newang.y * viewbobintensity * -0.3)
@@ -1631,7 +1509,7 @@ function SWEP:DrawHUD()
 		drawcrossy = self.DrawCrosshair
 	end
 
-	local crossa = GetConVarNumber("cl_hawkeye_crosshair_a", 220) * math.min(1 - self.CLIronSightsProgress, 1 - self.CLRunSightsProgress, 1 - self.CLNearWallProgress)
+	local crossa = 220 * math.min(1 - self.CLIronSightsProgress, 1 - self.CLRunSightsProgress, 1 - self.CLNearWallProgress)
 	--[[
 	if self:GetIronSights() then
 		drawcrossy = false
@@ -1648,42 +1526,34 @@ function SWEP:DrawHUD()
 	--
 	self.DrawCrosshair = false
 
-	if drawcrossy then
-		if GetConVarNumber("cl_hawkeye_custom_crosshair") == 1 then
-			if IsValid(LocalPlayer()) and self:GetOwner() == LocalPlayer() then
-				local x, y -- local, always
-				local s_cone, recoil = self:ClientCalculateConeRecoil()
+	if drawcrossy and IsValid(LocalPlayer()) and self:GetOwner() == LocalPlayer() then
+		local x, y -- local, always
+		local s_cone, recoil = self:ClientCalculateConeRecoil()
 
-				-- If we're drawing the local player, draw the crosshair where they're aiming
-				-- instead of in the center of the screen.
-				if self:GetOwner():ShouldDrawLocalPlayer() then
-					local tr = util.GetPlayerTrace(self:GetOwner())
-					tr.mask = CONTENTS_SOLID + CONTENTS_MOVEABLE + CONTENTS_MONSTER + CONTENTS_WINDOW + CONTENTS_DEBRIS + CONTENTS_GRATE + CONTENTS_AUX -- List the enums that should mask the crosshair on camrea/thridperson
-					local trace = util.TraceLine(tr)
-					local coords = trace.HitPos:ToScreen()
-					x, y = coords.x, coords.y
-				else
-					x, y = ScrW() / 2.0, ScrH() / 2.0 -- Center of screen
-				end
-
-				local crossr, crossg, crossb, crosslen
-				crossr = GetConVarNumber("cl_hawkeye_crosshair_r", 225)
-				crossg = GetConVarNumber("cl_hawkeye_crosshair_g", 225)
-				crossb = GetConVarNumber("cl_hawkeye_crosshair_b", 225)
-				crosslen = GetConVarNumber("cl_hawkeye_crosshair_length", 1) * 0.01
-				local scale = (s_cone * 90) / self:GetOwner():GetFOV() * 480
-				local gap = scale
-				local length = gap + ScrW() * crosslen
-				surface.SetDrawColor(crossr, crossg, crossb, crossa)
-				surface.DrawLine(x - length, y, x - gap, y) -- Left
-				surface.DrawLine(x + length, y, x + gap, y) -- Right
-				surface.DrawLine(x, y - length, x, y - gap) -- Top
-				surface.DrawLine(x, y + length, x, y + gap) -- Bottom
-			end
+		-- If we're drawing the local player, draw the crosshair where they're aiming
+		-- instead of in the center of the screen.
+		if self:GetOwner():ShouldDrawLocalPlayer() then
+			local tr = util.GetPlayerTrace(self:GetOwner())
+			tr.mask = CONTENTS_SOLID + CONTENTS_MOVEABLE + CONTENTS_MONSTER + CONTENTS_WINDOW + CONTENTS_DEBRIS + CONTENTS_GRATE + CONTENTS_AUX -- List the enums that should mask the crosshair on camrea/thridperson
+			local trace = util.TraceLine(tr)
+			local coords = trace.HitPos:ToScreen()
+			x, y = coords.x, coords.y
 		else
-			if math.min(1 - self.CLIronSightsProgress, 1 - self.CLRunSightsProgress, 1 - self.CLNearWallProgress) > 0.5 then
-				self.DrawCrosshair = true
-			end
+			x, y = ScrW() / 2.0, ScrH() / 2.0 -- Center of screen
 		end
+
+		local crossr, crossg, crossb, crosslen
+		crossr = 255
+		crossg = 255
+		crossb = 255
+		crosslen = 0.01
+		local scale = (s_cone * 90) / self:GetOwner():GetFOV() * 480
+		local gap = scale
+		local length = gap + ScrW() * crosslen
+		surface.SetDrawColor(crossr, crossg, crossb, crossa)
+		surface.DrawLine(x - length, y, x - gap, y) -- Left
+		surface.DrawLine(x + length, y, x + gap, y) -- Right
+		surface.DrawLine(x, y - length, x, y - gap) -- Top
+		surface.DrawLine(x, y + length, x, y + gap) -- Bottom
 	end
 end

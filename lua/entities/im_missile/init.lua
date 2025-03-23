@@ -2,9 +2,7 @@ AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")
 include("shared.lua")
 ENT.Model = "models/weapons/rocket_models/w_rocket_airstrike/w_rocket.mdl"
-
-CreateConVar("im_missile_enablemotion", 1, {FCVAR_ARCHIVE, FCVAR_PROTECTED}, "Should missile unfreeze/unweld props upon impact?")
-
+CreateConVar("im_missile_enablemotion", 1, FCVAR_NONE, "Should missile unfreeze/unweld props upon impact?")
 local phys
 
 function ENT:Initialize()

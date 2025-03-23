@@ -274,18 +274,6 @@ function SWEP:DrawHUD()
 	surface.DrawText(arrowman .. " Arrow")
 end
 
-if not ConVarExists("sv_hawkeye_default_clip") then
-	print("sv_hawkeye_default_clip is missing! You may have hit the lua limit!")
-else
-	if GetConVar("sv_hawkeye_default_clip"):GetInt() ~= -1 then
-		SWEP.Primary.DefaultClip = SWEP.Primary.ClipSize * GetConVar("sv_hawkeye_default_clip"):GetInt()
-	end
-end
-
-if ConVarExists("sv_hawkeye_unique_slots") and not GetConVar("sv_hawkeye_unique_slots"):GetBool() then
-	SWEP.SlotPos = 2
-end
-
 --SWEP.IronSightsPos = Vector( -6.518, -4.646, 2.134 )
 --SWEP.IronSightsAng = Vector( 2.737, 0.158, 0 )
 --- TTT config values

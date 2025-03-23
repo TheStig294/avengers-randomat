@@ -70,14 +70,6 @@ function ENT:Initialize()
 			end
 		end)
 
-		if GetConVarNumber("sv_hawkeye_arrow_lifetime", -1) ~= -1 then
-			timer.Simple(GetConVarNumber("sv_hawkeye_arrow_lifetime", 30) + 5, function()
-				if IsValid(self) then
-					self:Remove()
-				end
-			end)
-		end
-
 		self:PhysicsInit(SOLID_VPHYSICS)
 		self:SetMoveType(MOVETYPE_VPHYSICS)
 		self:SetSolid(SOLID_VPHYSICS)
@@ -137,7 +129,7 @@ function ENT:PhysicsUpdate()
 			bul.Attacker = self:GetOwner()
 			bul.Spread = vector_origin
 			bul.Src = tracedata.start
-			bul.Force = self.mydamage * 0.25 * GetConVarNumber("sv_hawkeye_force_multiplier", 1)
+			bul.Force = self.mydamage * 0.25
 			bul.Damage = self.mydamage
 			bul.Tracer = 1000000000 -- Show a tracer on every x bullets
 			bul.TracerName = "None"

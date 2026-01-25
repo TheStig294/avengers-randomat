@@ -22,11 +22,6 @@ SWEP.Base = "weapon_tttbase"
 SWEP.Kind = WEAPON_EQUIP
 SWEP.Icon = "VGUI/entities/stormbreaker.png"
 SWEP.Slot = 6
-
-if SERVER then
-	resource.AddFile("materials/VGUI/entities/stormbreaker.png")
-end
-
 SWEP.LimitedStock = true
 
 SWEP.EquipMenuData = {

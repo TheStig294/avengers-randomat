@@ -14,10 +14,6 @@ if CLIENT then
 	SWEP.Icon = "vgui/ttt/FireBow"
 end
 
-if SERVER then
-	resource.AddFile("materials/VGUI/ttt/FireBow.vmt")
-end
-
 SWEP.Author = ""
 SWEP.Contact = ""
 SWEP.Purpose = ""

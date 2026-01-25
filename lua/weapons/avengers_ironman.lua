@@ -21,11 +21,6 @@ H - Drops 10 bombs, needs relative altitude of at least 10
 SWEP.Base = "weapon_tttbase"
 SWEP.Kind = WEAPON_EQUIP
 SWEP.Icon = "VGUI/entities/suit_ironman"
-
-if SERVER then
-    resource.AddFile("materials/VGUI/entities/suit_ironman.vmt")
-end
-
 SWEP.Slot = 6
 
 SWEP.EquipMenuData = {

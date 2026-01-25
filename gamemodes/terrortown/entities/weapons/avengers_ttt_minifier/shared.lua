@@ -1,6 +1,5 @@
 if SERVER then
     AddCSLuaFile("shared.lua")
-    resource.AddFile("materials/VGUI/ttt/lykrast/icon_minifier.vmt")
 end
 
 if CLIENT then

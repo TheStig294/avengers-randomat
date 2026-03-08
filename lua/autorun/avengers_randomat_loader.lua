@@ -1,4 +1,6 @@
-resource.AddWorkshop("3052896263")
+if SERVER then
+    resource.AddWorkshop("3052896263")
+end
 
 -- Shield Block
 hook.Add("ScalePlayerDamage", "blocking", function(ply, hitgroup, dmginfo)
